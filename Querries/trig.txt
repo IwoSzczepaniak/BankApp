@@ -1,0 +1,84 @@
+CREATE TRIGGER IF NOT EXISTS update_saldo_trigger
+AFTER INSERT ON przelew
+FOR EACH ROW
+BEGIN
+    -- Subtract amount from the account of the sender
+    UPDATE konto
+    SET saldo = saldo - NEW.kwota
+    WHERE nr_konta = NEW.nr_konta_nadawcy;
+
+    -- Add amount to the account of the receiver
+    UPDATE konto
+    SET saldo = saldo + NEW.kwota
+    WHERE nr_konta = NEW.nr_konta_odbiorcy;
+
+    SELECT CASE
+    WHEN( NEW.kwota < 0 )
+    THEN
+        RAISE(ABORT, 'Błędna kwota przelewu')
+    END;
+
+    SELECT CASE
+    WHEN ((SELECT saldo FROM konto WHERE nr_konta = NEW.nr_konta_nadawcy) + NEW.kwota <= 0)
+    THEN
+        RAISE(ABORT, 'za malo srodkow na koncie aby zrobic przelew')
+    END;
+END;
+
+//
+
+CREATE TRIGGER IF NOT EXISTS update_saldo_atm_trigger
+AFTER INSERT ON transakcja
+FOR EACH ROW
+BEGIN
+    UPDATE konto
+    SET saldo = saldo + NEW.wplata_wyplata
+    WHERE nr_konta = (SELECT nr_konta FROM karta WHERE nr_karty = NEW.nr_karty);
+
+    -- Sprawdź czy jest wystarczająco pieniędzy
+    SELECT CASE
+    WHEN ((SELECT k.saldo
+         FROM konto k
+         JOIN karta ka ON k.nr_konta = ka.nr_konta
+         WHERE ka.nr_karty = NEW.nr_karty) < 0) 
+    THEN
+        RAISE(ABORT, 'za malo srodkow na koncie aby wyplacic oczekiwana kwote')
+    END;
+END;
+
+//
+
+CREATE TRIGGER check_property_trigger
+BEFORE INSERT ON kredyt_detale
+FOR EACH ROW
+BEGIN
+    SELECT CASE 
+    WHEN
+    (SELECT oprocentowanie
+    FROM typ_kredytu
+    WHERE typ_kredytu_id = NEW.typ_kredytu_id) = 2 
+    AND 
+    (SELECT mieszkanie
+    FROM klient
+    WHERE klient_id = NEW.klient_id) 
+    
+    THEN
+        RAISE(ABORT, 'Nie możesz wziąć kredytu z oprocentowaniem 2, jeśli posiadasz mieszkanie')
+    END;
+
+END;
+
+//
+
+CREATE TRIGGER check_credit_trigger
+BEFORE INSERT ON kredyt_detale
+FOR EACH ROW
+BEGIN
+    SELECT CASE
+    WHEN (SELECT COUNT(*)
+    FROM kredyt_detale
+    WHERE klient_id = NEW.klient_id) > 0 
+    THEN
+        RAISE (ABORT, 'Klient posiada już kredyt - nie moze dostac kolejnego')
+    END;
+END;

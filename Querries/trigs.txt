@@ -1,0 +1,13 @@
+
+CREATE TRIGGER check_credit_trigger
+BEFORE INSERT ON kredyt_detale
+FOR EACH ROW
+BEGIN
+    SELECT CASE
+    WHEN (SELECT COUNT(*)
+    FROM kredyt_detale
+    WHERE klient_id = NEW.klient_id) > 0 
+    THEN
+        RAISE (ABORT, 'Klient posiada już kredyt - nie moze dostac kolejnego')
+    END;
+END;
