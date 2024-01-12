@@ -48,7 +48,7 @@ END;
 
 //
 
-CREATE TRIGGER check_property_trigger
+CREATE TRIGGER IF NOT EXISTS check_property_trigger
 BEFORE INSERT ON kredyt_detale
 FOR EACH ROW
 BEGIN
@@ -70,7 +70,7 @@ END;
 
 //
 
-CREATE TRIGGER check_credit_trigger
+CREATE TRIGGER IF NOT EXISTS check_credit_trigger
 BEFORE INSERT ON kredyt_detale
 FOR EACH ROW
 BEGIN

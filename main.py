@@ -4,14 +4,14 @@ import os
 db_name ="bank.db"
 
 if __name__ == "__main__":
-    create_db = True
-    if os.path.exists(db_name): 
-        create_db = False
+    if not os.path.exists(db_name): 
+        print("Creating database...")
+        sql_to_python(db_name, "Queries/create_tables.txt")
+        sql_to_python(db_name, "Queries/inserts.txt")
+        sql_to_python(db_name, "Queries/trig.txt", "//")
+    
+    # result = selects_to_python(db_name, "Queries/selects.txt")
+    # print(result)
 
-    
-    if create_db: 
-        sql_to_python("Querries/create_tables.txt",db_name)
-        sql_to_python("Querries/inserts.txt",db_name)
-    direct_sql_to_python("Querries/trig.txt",db_name)
-    
-    sql_to_python("Querries/selects.txt",db_name)
+    start = WindowStart("Start")
+    start.vis()
