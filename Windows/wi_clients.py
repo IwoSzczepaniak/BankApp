@@ -1,4 +1,4 @@
-from windows.common_tk_classes import *
+from Windows.common_tk_classes import *
 
 class WindowInputClients(Window):
     def __init__(self, title) -> None:

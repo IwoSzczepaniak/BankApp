@@ -1,6 +1,6 @@
-from windows.common_tk_classes import *
-from windows.wi_clients import *
-from windows.wi_credit import *
+from Windows.common_tk_classes import *
+from Windows.wi_clients import *
+from Windows.wi_credit import *
 
 class WindowStart(Window):
     def __init__(self, title) -> None:
