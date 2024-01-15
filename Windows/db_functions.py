@@ -3,9 +3,9 @@ import psycopg2
 def connect():
     return psycopg2.connect(
         host = "localhost", 
-        database = "bank",
+        database = "Bank",
         user = "postgres",
-        password = "newpassword", 
+        password = "BazyProjekt12", 
         port = "5432",
         )
 
