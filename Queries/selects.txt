@@ -1,2 +1,0 @@
-SELECT * FROM oddzial_banku;
-SELECT * FROM konto;

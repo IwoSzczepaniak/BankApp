@@ -1,4 +1,5 @@
 from Windows.common_tk_classes import *
+from Windows.db_functions import *
 
 class WindowInputClients(Window):
     def __init__(self, title) -> None:
@@ -7,7 +8,7 @@ class WindowInputClients(Window):
 
         def update_client_preview():
             client_preview.delete(1.0, tk.END)  # Clear the text widget
-            clients = get_select(self.db_name, "SELECT * FROM klient;")
+            clients = get_select("SELECT * FROM klient;")
 
             if clients:
                 for client in clients:
@@ -28,7 +29,7 @@ class WindowInputClients(Window):
 
             if len(name) > 0 and len(surname) > 0 and len(pesel) > 0 and len(realestate)>0 and len(branch)>0:
                 text = f"INSERT INTO klient (imie, nazwisko, pesel, mieszkanie, najblizszy_oddzial_id) VALUES ('{name}', '{surname}', '{pesel}', {realestate}, {branch});"
-                error = execute_sql_querry(self.db_name, text)
+                error = execute_sql_query(text)
                 # TODO error handling
 
 
@@ -36,7 +37,7 @@ class WindowInputClients(Window):
             update_client_preview()
 
         def reset_clients():
-            error = execute_sql_querry(self.db_name, "DELETE from klient")
+            error = execute_sql_query("DELETE from klient")
             # TODO error handling
             update_client_preview()
 
@@ -44,8 +45,8 @@ class WindowInputClients(Window):
         name_block = create_label_and_block(self.window, "Imię klienta", 10)
         surname_block = create_label_and_block(self.window, "Nazwisko klienta", 10)
         pesel_block = create_label_and_block(self.window, "PESEL klienta", 10)
-        realestate_block = create_label_and_block(self.window, "Ilość mieszkań", 10)
-        branch_block = create_label_and_block(self.window, "Najbliższy oddział", 10)
+        realestate_block = create_option_menu(self.window, "Ilość mieszkań", "Wybierz", ['true', 'false'])
+        branch_block = create_option_menu(self.window, "Oddział", "Wybierz", get_select("SELECT oddzial_id FROM oddzial_banku;")[1])
         # 
 
         # save btn

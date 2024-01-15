@@ -1,5 +1,5 @@
 import tkinter as tk
-from db_functions import *
+from Windows.db_functions import *
 from time import sleep
 
 class Window:

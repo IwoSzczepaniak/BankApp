@@ -1,75 +1,73 @@
-create table oddzial_banku(
-    oddzial_id int primary key,
-    adres varchar(50)
-
+CREATE TABLE IF NOT EXISTS oddzial_banku (
+    oddzial_id SERIAL PRIMARY KEY,
+    adres VARCHAR(50)
 );
 
-create table klient(
-    klient_id INTEGER primary key autoincrement,
-    imie varchar(20) not null,
-    nazwisko varchar(20) not null,
-    pesel varchar(11) not null,
-    mieszkanie boolean not null,
-    najblizszy_oddzial_id int not null,
-    foreign key(najblizszy_oddzial_id) references oddzial_banku(oddzial_id)
+CREATE TABLE IF NOT EXISTS klient (
+    klient_id SERIAL PRIMARY KEY,
+    imie VARCHAR(20) NOT NULL,
+    nazwisko VARCHAR(20) NOT NULL,
+    pesel VARCHAR(11) NOT NULL,
+    mieszkanie BOOLEAN NOT NULL,
+    najblizszy_oddzial_id INT NOT NULL,
+    FOREIGN KEY (najblizszy_oddzial_id) REFERENCES oddzial_banku (oddzial_id)
 );
 
-
-create table konto(
-    nr_konta int primary key,
-    klient_id int,
-    saldo int,
-    foreign key(klient_id) references klient(klient_id)
+CREATE TABLE IF NOT EXISTS konto (
+    nr_konta SERIAL PRIMARY KEY,
+    klient_id INT,
+    saldo INT,
+    FOREIGN KEY (klient_id) REFERENCES klient (klient_id)
 );
 
-create table karta(
-    nr_karty int primary key,
-    nr_konta int,
-    rodzaj_karty varchar(20),
-    foreign key(nr_konta) references konto(nr_konta)
+CREATE TABLE IF NOT EXISTS karta (
+    nr_karty SERIAL PRIMARY KEY,
+    nr_konta INT,
+    rodzaj_karty VARCHAR(20),
+    FOREIGN KEY (nr_konta) REFERENCES konto (nr_konta)
 );
 
-create table typ_kredytu(
-    typ_kredytu_id INTEGER primary key autoincrement,
-    oprocentowanie int,
-    maksymalna_kwota int,
-    pula_srodkow int,
-    aktualna_pula_srodkow int,
-    oddzial_id int,
-    foreign key(oddzial_id) references oddzial_banku(oddzial_id)
+CREATE TABLE IF NOT EXISTS typ_kredytu (
+    typ_kredytu_id SERIAL PRIMARY KEY,
+    oprocentowanie INT,
+    maksymalna_kwota INT,
+    pula_srodkow INT,
+    aktualna_pula_srodkow INT,
+    oddzial_id INT,
+    FOREIGN KEY (oddzial_id) REFERENCES oddzial_banku (oddzial_id)
 );
 
-create table kredyt_detale(
-    kredyt_id INTEGER primary key autoincrement,
-    klient_id int,
-    typ_kredytu_id int,
-    kwota int,
-    data_zaciagniecia date,
-    data_splaty date,
-    foreign key(klient_id) references klient(klient_id),
-    foreign key(typ_kredytu_id) references typ_kredytu(typ_kredytu_id)
+CREATE TABLE IF NOT EXISTS kredyt_detale (
+    kredyt_id SERIAL PRIMARY KEY,
+    klient_id INT,
+    typ_kredytu_id INT,
+    kwota INT,
+    data_zaciagniecia DATE,
+    data_splaty DATE,
+    FOREIGN KEY (klient_id) REFERENCES klient (klient_id),
+    FOREIGN KEY (typ_kredytu_id) REFERENCES typ_kredytu (typ_kredytu_id)
 );
 
-create table przelew(
-    przelew_id INTEGER primary key autoincrement,
-    nr_konta_nadawcy int not null,
-    nr_konta_odbiorcy int not null,
-    kwota int not null,
-    foreign key(nr_konta_nadawcy) references konto(nr_konta),
-    foreign key(nr_konta_odbiorcy) references konto(nr_konta)
+CREATE TABLE IF NOT EXISTS przelew (
+    przelew_id SERIAL PRIMARY KEY,
+    nr_konta_nadawcy INT NOT NULL,
+    nr_konta_odbiorcy INT NOT NULL,
+    kwota INT NOT NULL,
+    FOREIGN KEY (nr_konta_nadawcy) REFERENCES konto (nr_konta),
+    FOREIGN KEY (nr_konta_odbiorcy) REFERENCES konto (nr_konta)
 );
 
-create table bankomat(
-    bankomat_id INTEGER primary key autoincrement,
-    oddzial_id int not null,
-    foreign key(oddzial_id) references oddzial_banku(oddzial_id)
+CREATE TABLE IF NOT EXISTS bankomat (
+    bankomat_id SERIAL PRIMARY KEY,
+    oddzial_id INT NOT NULL,
+    FOREIGN KEY (oddzial_id) REFERENCES oddzial_banku (oddzial_id)
 );
 
-create table transakcja(
-    transakcja_id INTEGER primary key autoincrement,
-    bankomat_id int not null,
-    nr_karty int not null,
-    wplata_wyplata int not null,
-    foreign key(bankomat_id) references bankomat(bankomat_id),
-    foreign key(nr_karty) references karta(nr_karty)
+CREATE TABLE IF NOT EXISTS transakcja (
+    transakcja_id SERIAL PRIMARY KEY,
+    bankomat_id INT NOT NULL,
+    nr_karty INT NOT NULL,
+    wplata_wyplata INT NOT NULL,
+    FOREIGN KEY (bankomat_id) REFERENCES bankomat (bankomat_id),
+    FOREIGN KEY (nr_karty) REFERENCES karta (nr_karty)
 );

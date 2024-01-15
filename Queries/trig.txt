@@ -1,6 +1,6 @@
-CREATE TRIGGER IF NOT EXISTS update_saldo_trigger
-AFTER INSERT ON przelew
-FOR EACH ROW
+-- Update Saldo Trigger
+CREATE OR REPLACE FUNCTION update_saldo_function()
+RETURNS TRIGGER AS $$
 BEGIN
     -- Subtract amount from the account of the sender
     UPDATE konto
@@ -12,84 +12,130 @@ BEGIN
     SET saldo = saldo + NEW.kwota
     WHERE nr_konta = NEW.nr_konta_odbiorcy;
 
-    SELECT CASE
-    WHEN( NEW.kwota < 0 )
-    THEN
-        RAISE(ABORT, 'Błędna kwota przelewu')
-    END;
+    IF NEW.kwota < 0 THEN
+        RAISE EXCEPTION 'Błędna kwota przelewu';
+    END IF;
 
-    SELECT CASE
-    WHEN ((SELECT saldo FROM konto WHERE nr_konta = NEW.nr_konta_nadawcy) + NEW.kwota <= 0)
-    THEN
-        RAISE(ABORT, 'za malo srodkow na koncie aby zrobic przelew')
-    END;
+    IF (SELECT saldo FROM konto WHERE nr_konta = NEW.nr_konta_nadawcy) + NEW.kwota <= 0 THEN
+        RAISE EXCEPTION 'za malo srodkow na koncie aby zrobic przelew';
+    END IF;
+
+    RETURN NEW;
 END;
+$$ LANGUAGE plpgsql;
 
-//
+DO $$ 
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 
+        FROM pg_trigger 
+        WHERE tgname = 'update_saldo_trigger' 
+        AND tgrelid = 'przelew'::regclass
+    ) THEN
+        CREATE TRIGGER update_saldo_trigger
+        AFTER INSERT ON przelew
+        FOR EACH ROW
+        EXECUTE FUNCTION update_saldo_function();
+    END IF;
+END $$;
 
-CREATE TRIGGER IF NOT EXISTS update_saldo_atm_trigger
-AFTER INSERT ON transakcja
-FOR EACH ROW
+-- Update Saldo ATM Trigger
+CREATE OR REPLACE FUNCTION update_saldo_atm_function()
+RETURNS TRIGGER AS $$
 BEGIN
     UPDATE konto
     SET saldo = saldo + NEW.wplata_wyplata
     WHERE nr_konta = (SELECT nr_konta FROM karta WHERE nr_karty = NEW.nr_karty);
 
-    -- Sprawdź czy jest wystarczająco pieniędzy
-    SELECT CASE
-    WHEN ((SELECT k.saldo
-         FROM konto k
-         JOIN karta ka ON k.nr_konta = ka.nr_konta
-         WHERE ka.nr_karty = NEW.nr_karty) < 0) 
-    THEN
-        RAISE(ABORT, 'za malo srodkow na koncie aby wyplacic oczekiwana kwote')
-    END;
+    IF (SELECT k.saldo
+        FROM konto k
+        JOIN karta ka ON k.nr_konta = ka.nr_konta
+        WHERE ka.nr_karty = NEW.nr_karty) < 0 THEN
+        RAISE EXCEPTION 'za malo srodkow na koncie aby wyplacic oczekiwana kwote';
+    END IF;
+
+    RETURN NEW;
 END;
+$$ LANGUAGE plpgsql;
 
-//
-
-CREATE TRIGGER IF NOT EXISTS check_property_trigger
-BEFORE INSERT ON kredyt_detale
-FOR EACH ROW
+DO $$ 
 BEGIN
-    SELECT CASE 
-    WHEN
-    (SELECT oprocentowanie
-    FROM typ_kredytu
-    WHERE typ_kredytu_id = NEW.typ_kredytu_id) = 2 
-    AND 
-    (SELECT mieszkanie
-    FROM klient
-    WHERE klient_id = NEW.klient_id) 
-    
-    THEN
-        RAISE(ABORT, 'Nie możesz wziąć kredytu z oprocentowaniem 2, jeśli posiadasz mieszkanie')
-    END;
+    IF NOT EXISTS (
+        SELECT 1 
+        FROM pg_trigger 
+        WHERE tgname = 'update_saldo_atm_trigger' 
+        AND tgrelid = 'transakcja'::regclass
+    ) THEN
+        CREATE TRIGGER update_saldo_atm_trigger
+        AFTER INSERT ON transakcja
+        FOR EACH ROW
+        EXECUTE FUNCTION update_saldo_atm_function();
+    END IF;
+END $$;
 
-END;
-
-//
-
-CREATE TRIGGER IF NOT EXISTS check_credit_trigger
-BEFORE INSERT ON kredyt_detale
-FOR EACH ROW
+-- Check Property Trigger
+CREATE OR REPLACE FUNCTION check_property_function()
+RETURNS TRIGGER AS $$
 BEGIN
-    SELECT CASE
-    WHEN 
-    (SELECT COUNT(*)
-    FROM kredyt_detale
-    WHERE klient_id = NEW.klient_id) > 0 
-    THEN
-        RAISE (ABORT, 'Klient posiada już kredyt - nie moze dostac kolejnego')
-    END;
+    IF (SELECT oprocentowanie
+        FROM typ_kredytu
+        WHERE typ_kredytu_id = NEW.typ_kredytu_id) = 2 
+        AND (SELECT mieszkanie
+            FROM klient
+            WHERE klient_id = NEW.klient_id) THEN
+        RAISE EXCEPTION 'Nie możesz wziąć kredytu z oprocentowaniem 2, jeśli posiadasz mieszkanie';
+    END IF;
 
-    SELECT CASE
-    WHEN 
-    ((SELECT COUNT(*)
-    FROM klient
-    WHERE klient_id = NEW.klient_id) is null)
-    THEN
-        RAISE(ABORT, 'Nie ma klienta o takim id')
-    END;
- 
+    RETURN NEW;
 END;
+$$ LANGUAGE plpgsql;
+
+DO $$ 
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 
+        FROM pg_trigger 
+        WHERE tgname = 'check_property_trigger' 
+        AND tgrelid = 'kredyt_detale'::regclass
+    ) THEN
+        CREATE TRIGGER check_property_trigger
+        BEFORE INSERT ON kredyt_detale
+        FOR EACH ROW
+        EXECUTE FUNCTION check_property_function();
+    END IF;
+END $$;
+
+-- Check Credit Trigger
+CREATE OR REPLACE FUNCTION check_credit_function()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF (SELECT COUNT(*)
+        FROM kredyt_detale
+        WHERE klient_id = NEW.klient_id) > 0 THEN
+        RAISE EXCEPTION 'Klient posiada już kredyt - nie moze dostac kolejnego';
+    END IF;
+
+    IF NOT EXISTS (SELECT 1
+        FROM klient
+        WHERE klient_id = NEW.klient_id) THEN
+        RAISE EXCEPTION 'Nie ma klienta o takim id';
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DO $$ 
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 
+        FROM pg_trigger 
+        WHERE tgname = 'check_credit_trigger' 
+        AND tgrelid = 'kredyt_detale'::regclass
+    ) THEN
+        CREATE TRIGGER check_credit_trigger
+        BEFORE INSERT ON kredyt_detale
+        FOR EACH ROW
+        EXECUTE FUNCTION check_credit_function();
+    END IF;
+END $$;
