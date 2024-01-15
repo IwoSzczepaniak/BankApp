@@ -1,4 +1,4 @@
-from classes import *
+from windows.start import *
 import os
 
 db_name ="bank.db"
@@ -8,9 +8,9 @@ if __name__ == "__main__":
         print("Creating database...")
         sql_to_python(db_name, "Queries/create_tables.txt")
         sql_to_python(db_name, "Queries/inserts.txt")
-        sql_to_python(db_name, "Queries/trig.txt", "//")
+    sql_to_python(db_name, "Queries/trig.txt", "//")
     
-    # result = selects_to_python(db_name, "Queries/selects.txt")
+    # result = selects_to_python(db_name, "Queries/selects.txt")    
     # print(result)
 
     start = WindowStart("Start")

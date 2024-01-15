@@ -9,6 +9,7 @@ def execute_sql_querry(db_name:str, query_text:str):
                     print(e)
                     print(query_text)
                     print()
+                    return query_text
     finally:
         conn.close()
 
