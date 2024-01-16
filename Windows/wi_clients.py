@@ -32,11 +32,6 @@ class WindowInputClients(Window):
             sleep(0.01)
             update_client_preview()
 
-        def reset_clients():
-            error = execute_sql_query("DELETE from klient")
-            # TODO error handling
-            update_client_preview()
-
         # data
         name_block = create_label_and_block(self.window, "Imię klienta", 10)
         surname_block = create_label_and_block(self.window, "Nazwisko klienta", 10)
@@ -54,11 +49,6 @@ class WindowInputClients(Window):
         client_preview = tk.Text(self.window, height=15, width=100)
         client_preview.pack(pady=10)
         update_client_preview()
-        # 
-
-        # reset db
-        reset_button = tk.Button(self.window, text="Resetuj bazę danych", command=reset_clients)
-        reset_button.pack(pady=10)
         # 
 
         self.window.mainloop()
