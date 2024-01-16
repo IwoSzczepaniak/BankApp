@@ -37,3 +37,17 @@ def create_option_menu(win, label_text:str, list_text:str, options, pad_y:int = 
     client_menu.pack(pady=pad_y)
 
     return selected_client
+
+def create_option_menu_to_edit(win, label_text:str, list_text:str, options, pad_y:int = 5):
+    select_label = tk.Label(win, text=label_text)
+    select_label.pack(pady=pad_y)
+
+    selected_client = tk.StringVar(win)
+    selected_client.set(list_text) # set the default value to the first client in the list
+
+    # create the option menu widget
+    client_menu = tk.OptionMenu(win, selected_client, *options)
+        
+    client_menu.pack(pady=pad_y)
+
+    return selected_client, client_menu
