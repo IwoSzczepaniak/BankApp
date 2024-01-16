@@ -33,6 +33,7 @@ def create_option_menu(win, label_text:str, list_text:str, options, pad_y:int = 
 
     # create the option menu widget
     client_menu = tk.OptionMenu(win, selected_client, *options)
+        
     client_menu.pack(pady=pad_y)
 
     return selected_client

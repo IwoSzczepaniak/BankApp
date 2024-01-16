@@ -15,10 +15,6 @@ class WindowInputClients(Window):
                     client_preview.insert(tk.END, f"ID: {client[0]},\tImię: {client[1]},\tNazwisko: {client[2]},\tPESEL:{client[3]},\tIlość mieszkań:{client[4]},\tOddział:{client[5]}\n")
             else:
                 client_preview.insert(tk.END, "Brak klientów w bazie.")
-            
-            # client_preview.tag_configure("center", justify="center")
-            # client_preview.tag_add("center", "1.0", "end")
-
 
         def save_name():
             name = name_block.get()
@@ -45,8 +41,8 @@ class WindowInputClients(Window):
         name_block = create_label_and_block(self.window, "Imię klienta", 10)
         surname_block = create_label_and_block(self.window, "Nazwisko klienta", 10)
         pesel_block = create_label_and_block(self.window, "PESEL klienta", 10)
-        realestate_block = create_option_menu(self.window, "Ilość mieszkań", "Wybierz", ['true', 'false'])
-        branch_block = create_option_menu(self.window, "Oddział", "Wybierz", get_select("SELECT oddzial_id FROM oddzial_banku;")[1])
+        realestate_block = create_option_menu(self.window, "Czy posiada mieszkanie", "Wybierz", ['true', 'false'])
+        branch_block = create_option_menu(self.window, "ID oddziału", "Wybierz", get_select("SELECT oddzial_id FROM oddzial_banku;"))
         # 
 
         # save btn
