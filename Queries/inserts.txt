@@ -6,7 +6,7 @@ INSERT INTO klient (klient_id, imie, nazwisko, pesel, mieszkanie, najblizszy_odd
 INSERT INTO klient (klient_id, imie, nazwisko, pesel, mieszkanie, najblizszy_oddzial_id) VALUES (3,'Pola', 'Duda', '12345678903', false, 1);
 INSERT INTO klient (klient_id, imie, nazwisko, pesel, mieszkanie, najblizszy_oddzial_id) VALUES (4,'Katarzyna', 'Cegla', '23456789013', true, 2);
 
-INSERT INTO konto (nr_konta, klient_id, saldo) VALUES (1001, 1, 5000);
+INSERT INTO konto (nr_konta, klient_id, saldo) VALUES (1001, 1, 5001);
 INSERT INTO konto (nr_konta, klient_id, saldo) VALUES (1002, 2, 7500);
 INSERT INTO konto (nr_konta, klient_id, saldo) VALUES (1003, 3, 10000);
 INSERT INTO konto (nr_konta, klient_id, saldo) VALUES (1004, 4, 15000);
