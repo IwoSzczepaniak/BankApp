@@ -18,7 +18,7 @@ class WindowInputCard(Window):
 
         # data
         account_id_block = create_option_menu(self.window, "Numer konta", "Wybierz", get_select("SELECT nr_konta FROM konto"), 10)
-        card_type_block = create_label_and_block(self.window, "Typ karty", 10)
+        card_type_block = create_option_menu(self.window, "Numer konta", "Wybierz", ["Credit", "Debit"], 10)
         # 
 
         # save btn
