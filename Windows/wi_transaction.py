@@ -18,7 +18,7 @@ class WindowInputTransaction(Window):
             sleep(0.01)
         
         # data
-        bankomat_id_block = create_option_menu(self.window, "ID konta", "Wybierz", get_select("SELECT bankomat_id from bankomat"), 10)
+        bankomat_id_block = create_option_menu(self.window, "ID bankomatu", "Wybierz", get_select("SELECT bankomat_id from bankomat"), 10)
         card_nr_block = create_option_menu(self.window, "Numer karty", "Wybierz", get_select("SELECT nr_karty from karta"), 10)
         amount_block = create_label_and_block(self.window, "Kwota", 10)
         # 
