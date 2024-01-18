@@ -32,17 +32,15 @@ class WindowInputBranch(Window):
 
         # data
         address_block = create_label_and_block(self.window, "Adres", 10)
-        # 
-        
+     
         # preview
         branch_preview = tk.Text(self.window, height=15, width=100)
         branch_preview.pack(pady=15)
         update_branch_preview()
-        # 
+      
 
         # save btn
         save_button = tk.Button(self.window, text="Dodaj do bazy", command=save_name)
         save_button.pack(pady=15)
-        # 
-
+      
         self.window.mainloop()

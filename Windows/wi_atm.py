@@ -30,12 +30,12 @@ class WindowInputATM(Window):
 
         # data
         branch_id_block = create_option_menu(self.window, "ID oddziału do którego dodajesz bankomat", "Wybierz", get_select("SELECT oddzial_id from oddzial_banku"), 5)
-        # 
+
 
         # save btn
         save_button = tk.Button(self.window, text="Dodaj do bazy", command=save_name)
         save_button.pack(pady=10)
-        # 
+    
 
         atm_preview = tk.Text(self.window, height=12, width=80)
         atm_preview.pack(pady=10)

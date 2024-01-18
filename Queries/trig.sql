@@ -279,6 +279,8 @@ CREATE TRIGGER czy_klient_ma_juz_konto_trigger
 BEFORE INSERT ON konto
 FOR EACH ROW EXECUTE PROCEDURE czy_klient_ma_juz_konto();
 
+
+
 CREATE OR REPLACE FUNCTION czy_konto_ma_juz_karte()
 RETURNS TRIGGER AS $$
     DECLARE

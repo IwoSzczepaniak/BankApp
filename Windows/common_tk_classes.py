@@ -94,4 +94,4 @@ class WindowError(Window):
         label.pack(ipady=50)
         label.configure(background="red")
 
-        #
+    

@@ -21,11 +21,11 @@ class WindowInputAccount(Window):
         # data
         client_id_block = create_option_menu(self.window, "ID klienta", "Wybierz", get_select("SELECT klient_id FROM klient"), 10)
         saldo_block = create_label_and_block(self.window, "Saldo", 10)
-        # 
+    
 
         # save btn
         save_button = tk.Button(self.window, text="Dodaj do bazy", command=save_name)
         save_button.pack(pady=10)
-        # 
+    
 
         self.window.mainloop()

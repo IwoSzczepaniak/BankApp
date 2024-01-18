@@ -23,11 +23,11 @@ class WindowInputTransfer(Window):
         sender_id_block = create_option_menu(self.window, "Nadawca", "Wybierz", get_select("SELECT nr_konta FROM konto"), 10)
         receiver_id_block = create_option_menu(self.window, "Odbiorca", "Wybierz", get_select("SELECT nr_konta FROM konto"), 10)
         amount_block = create_label_and_block(self.window, "Kwota", 10)
-        # 
+        
 
         # save btn
         save_button = tk.Button(self.window, text="Dodaj do bazy", command=save_name)
         save_button.pack(pady=10)
-        # 
+        
 
         self.window.mainloop()

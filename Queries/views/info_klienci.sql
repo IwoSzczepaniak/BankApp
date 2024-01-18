@@ -8,8 +8,8 @@ select
     k.nr_konta as "numer konta",
     k.saldo AS "saldo"
 from klient kl
-join konto k on kl.klient_id = k.klient_id
-join karta kr on k.nr_konta = kr.nr_konta
+left join konto k on kl.klient_id = k.klient_id
+left join karta kr on k.nr_konta = kr.nr_konta
 order by "id klienta";
 
 

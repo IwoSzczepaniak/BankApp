@@ -20,12 +20,12 @@ class WindowInputCard(Window):
 
         # data
         account_id_block = create_option_menu(self.window, "Numer konta", "Wybierz", get_select("SELECT nr_konta FROM konto"), 10)
-        card_type_block = create_option_menu(self.window, "Numer konta", "Wybierz", ["Credit", "Debit"], 10)
-        # 
+        card_type_block = create_option_menu(self.window, "Rodzaj karty", "Wybierz", ["Credit", "Debit"], 10)
+   
 
         # save btn
         save_button = tk.Button(self.window, text="Dodaj do bazy", command=save_name)
         save_button.pack(pady=10)
-        # 
+    
 
         self.window.mainloop()

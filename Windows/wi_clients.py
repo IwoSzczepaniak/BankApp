@@ -40,18 +40,17 @@ class WindowInputClients(Window):
         pesel_block = create_label_and_block(self.window, "PESEL klienta", 10)
         realestate_block = create_option_menu(self.window, "Czy posiada mieszkanie", "Wybierz", ['true', 'false'])
         branch_block = create_option_menu(self.window, "ID oddziału", "Wybierz", get_select("SELECT oddzial_id FROM oddzial_banku;"))
-        # 
+     
 
         # save btn
         save_button = tk.Button(self.window, text="Dodaj do bazy", command=save_name)
         save_button.pack(pady=10)
-        # 
+     
 
         # preview
         client_preview = tk.Text(self.window, height=15, width=100)
         client_preview.pack(pady=10)
         update_client_preview()
-        # 
-
+         
         self.window.mainloop()
 

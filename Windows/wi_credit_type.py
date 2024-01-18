@@ -41,18 +41,17 @@ class WindowInputCreditType(Window):
         total_pool_block = create_label_and_block(self.window, "Pula całkowita", 10)
         current_pool_block = create_label_and_block(self.window, "Aktualna pula", 10)
         branch_block = create_option_menu(self.window, "ID oddziału", "Wybierz", get_select("SELECT oddzial_id FROM oddzial_banku;"))
-        # 
-
+        
         # save btn
         save_button = tk.Button(self.window, text="Dodaj do bazy", command=save_name)
         save_button.pack(pady=10)
-        # 
+        
 
         # preview
         credit_preview = tk.Text(self.window, height=15, width=105)
         credit_preview.pack(pady=10)
         update_credit_preview()
-        # 
+         
 
         self.window.mainloop()
 

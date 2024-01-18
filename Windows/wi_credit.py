@@ -27,11 +27,11 @@ class WindowInputCredit(Window):
         amount_block = create_label_and_block(self.window, "Kwota kredytu", 10)
         start_date_block = create_label_and_block(self.window, "Data zaciągnięcia", 10)
         end_date_block = create_label_and_block(self.window, "Data spłaty", 10)
-        # 
+        
 
         # save btn
         save_button = tk.Button(self.window, text="Dodaj do bazy", command=save_name)
         save_button.pack(pady=10)
-        # 
+        
 
         self.window.mainloop()
