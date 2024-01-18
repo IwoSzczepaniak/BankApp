@@ -5,6 +5,8 @@ INSERT INTO klient (klient_id, imie, nazwisko, pesel, mieszkanie, najblizszy_odd
 INSERT INTO klient (klient_id, imie, nazwisko, pesel, mieszkanie, najblizszy_oddzial_id) VALUES (2,'Piotr', 'Nowak', '23456789012', false, 2);
 INSERT INTO klient (klient_id, imie, nazwisko, pesel, mieszkanie, najblizszy_oddzial_id) VALUES (3,'Pola', 'Duda', '12345678903', false, 1);
 INSERT INTO klient (klient_id, imie, nazwisko, pesel, mieszkanie, najblizszy_oddzial_id) VALUES (4,'Katarzyna', 'Cegla', '23456789013', true, 2);
+INSERT INTO klient (imie, nazwisko, pesel, mieszkanie, najblizszy_oddzial_id) VALUES ('Katarzyna', 'Opiols', '23456789017', false, 2);
+
 
 INSERT INTO konto (nr_konta, klient_id, saldo) VALUES (1001, 1, 5001);
 INSERT INTO konto (nr_konta, klient_id, saldo) VALUES (1002, 2, 7500);
@@ -17,8 +19,8 @@ INSERT INTO karta (nr_karty, nr_konta, rodzaj_karty) VALUES (5003, 1003, 'Debit'
 INSERT INTO karta (nr_karty, nr_konta, rodzaj_karty) VALUES (5004, 1004, 'Credit');
 
 INSERT INTO typ_kredytu (typ_kredytu_id, oprocentowanie, maksymalna_kwota, pula_srodkow, aktualna_pula_srodkow, oddzial_id) VALUES (1, 2, 100000, 500000, 500000, 1);
-INSERT INTO typ_kredytu (typ_kredytu_id, oprocentowanie, maksymalna_kwota, pula_srodkow, aktualna_pula_srodkow, oddzial_id) VALUES (2, 8, 150000, 500000, 500000, 2);
-INSERT INTO typ_kredytu (typ_kredytu_id, oprocentowanie, maksymalna_kwota, pula_srodkow, aktualna_pula_srodkow, oddzial_id) VALUES (3, 2, 200000, 500000, 500000, 1);
+INSERT INTO typ_kredytu (typ_kredytu_id, oprocentowanie, maksymalna_kwota, pula_srodkow, aktualna_pula_srodkow, oddzial_id) VALUES (2, 8, 150000, 500000, 500000, 1);
+INSERT INTO typ_kredytu (typ_kredytu_id, oprocentowanie, maksymalna_kwota, pula_srodkow, aktualna_pula_srodkow, oddzial_id) VALUES (3, 2, 200000, 500000, 500000, 2);
 INSERT INTO typ_kredytu (typ_kredytu_id, oprocentowanie, maksymalna_kwota, pula_srodkow, aktualna_pula_srodkow, oddzial_id) VALUES (4, 8, 250000, 750000, 750000, 2);
 
 INSERT INTO kredyt_detale (klient_id, typ_kredytu_id, kwota, data_zaciagniecia, data_splaty) VALUES (1, 1, 5000, '2023-01-15', null);
