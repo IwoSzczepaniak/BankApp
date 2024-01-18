@@ -252,3 +252,51 @@ $$ LANGUAGE plpgsql;
 CREATE TRIGGER czy_oddzial_ma_juz_taki_procent_trigger
 BEFORE INSERT ON typ_kredytu
 FOR EACH ROW EXECUTE PROCEDURE czy_oddzial_ma_juz_taki_procent();
+
+
+
+
+CREATE OR REPLACE FUNCTION czy_klient_ma_juz_konto()
+RETURNS TRIGGER AS $$
+    DECLARE
+        klient_id integer;
+        ilosc_kont integer;
+    BEGIN
+        SELECT count(*) INTO ilosc_kont
+        FROM konto k
+        WHERE k.klient_id = NEW.klient_id;
+
+        IF ilosc_kont > 0 THEN
+            RAISE EXCEPTION 'Ten klient ma juz konto w banku';
+        END IF;
+
+        RETURN NEW;
+    END;
+
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER czy_klient_ma_juz_konto_trigger
+BEFORE INSERT ON konto
+FOR EACH ROW EXECUTE PROCEDURE czy_klient_ma_juz_konto();
+
+CREATE OR REPLACE FUNCTION czy_konto_ma_juz_karte()
+RETURNS TRIGGER AS $$
+    DECLARE
+        ilosc_kart integer;
+    BEGIN
+        SELECT count(*) INTO ilosc_kart
+        FROM karta k
+        WHERE k.nr_konta = NEW.nr_konta;
+
+        IF ilosc_kart > 0 THEN
+            RAISE EXCEPTION 'Konto o podanym numerze ma juz przypisana karte';
+        END IF;
+
+        RETURN NEW;
+    END;
+
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER czy_konto_ma_juz_karte_trigger
+BEFORE INSERT ON karta
+FOR EACH ROW EXECUTE PROCEDURE czy_konto_ma_juz_karte();
