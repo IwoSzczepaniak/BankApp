@@ -5,7 +5,7 @@ db_name ="bank.db"
 
 if __name__ == "__main__":
     # TODO clear db
-
+    sql_to_python("Queries/drop_tab.sql")
     sql_to_python("Queries/create_tables.txt")
     sql_to_python("Queries/inserts.txt")
     sql_to_python("Queries/trig.txt")

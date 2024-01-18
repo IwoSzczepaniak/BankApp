@@ -1,0 +1,9 @@
+drop table if exists oddzial_banku CASCADE;
+drop table if exists typ_kredytu CASCADE;
+drop table if exists kredyt_detale CASCADE;
+drop table if exists konto CASCADE;
+drop table if exists klient CASCADE;
+drop table if exists karta CASCADE;
+drop table if exists transakcja CASCADE;
+drop table if exists przelew CASCADE;
+drop table if exists bankomat CASCADE;

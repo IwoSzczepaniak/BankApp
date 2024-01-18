@@ -1,27 +1,34 @@
-INSERT INTO oddzial_banku (oddzial_id, adres) VALUES (1, 'Rakowicka 12');
-INSERT INTO oddzial_banku (oddzial_id, adres) VALUES (2, 'Krowoderska 12');
+ALTER SEQUENCE konto_nr_konta_seq
+restart with 1001;
 
-INSERT INTO klient (klient_id, imie, nazwisko, pesel, mieszkanie, najblizszy_oddzial_id) VALUES (1,'Jan', 'Kowalski', '12345678901', true, 1);
-INSERT INTO klient (klient_id, imie, nazwisko, pesel, mieszkanie, najblizszy_oddzial_id) VALUES (2,'Piotr', 'Nowak', '23456789012', false, 2);
-INSERT INTO klient (klient_id, imie, nazwisko, pesel, mieszkanie, najblizszy_oddzial_id) VALUES (3,'Pola', 'Duda', '12345678903', false, 1);
-INSERT INTO klient (klient_id, imie, nazwisko, pesel, mieszkanie, najblizszy_oddzial_id) VALUES (4,'Katarzyna', 'Cegla', '23456789013', true, 2);
+ALTER SEQUENCE karta_nr_karty_seq
+restart with 5001;
+
+
+INSERT INTO oddzial_banku ( adres) VALUES ('Rakowicka 12');
+INSERT INTO oddzial_banku ( adres) VALUES ('Krowoderska 12');
+
+INSERT INTO klient (imie, nazwisko, pesel, mieszkanie, najblizszy_oddzial_id) VALUES ('Jan', 'Kowalski', '12345678901', true, 1);
+INSERT INTO klient (imie, nazwisko, pesel, mieszkanie, najblizszy_oddzial_id) VALUES ('Piotr', 'Nowak', '23456789012', false, 2);
+INSERT INTO klient (imie, nazwisko, pesel, mieszkanie, najblizszy_oddzial_id) VALUES ('Pola', 'Duda', '12345678903', false, 1);
+INSERT INTO klient (imie, nazwisko, pesel, mieszkanie, najblizszy_oddzial_id) VALUES ('Katarzyna', 'Cegla', '23456789013', true, 2);
 INSERT INTO klient (imie, nazwisko, pesel, mieszkanie, najblizszy_oddzial_id) VALUES ('Katarzyna', 'Opiols', '23456789017', false, 2);
 
 
-INSERT INTO konto (nr_konta, klient_id, saldo) VALUES (1001, 1, 5001);
-INSERT INTO konto (nr_konta, klient_id, saldo) VALUES (1002, 2, 7500);
-INSERT INTO konto (nr_konta, klient_id, saldo) VALUES (1003, 3, 10000);
-INSERT INTO konto (nr_konta, klient_id, saldo) VALUES (1004, 4, 15000);
+INSERT INTO konto (klient_id, saldo) VALUES ( 1, 5001);
+INSERT INTO konto ( klient_id, saldo) VALUES ( 2, 7500);
+INSERT INTO konto ( klient_id, saldo) VALUES ( 3, 10000);
+INSERT INTO konto ( klient_id, saldo) VALUES ( 4, 15000);
 
-INSERT INTO karta (nr_karty, nr_konta, rodzaj_karty) VALUES (5001, 1001, 'Debit');
-INSERT INTO karta (nr_karty, nr_konta, rodzaj_karty) VALUES (5002, 1002, 'Credit');
-INSERT INTO karta (nr_karty, nr_konta, rodzaj_karty) VALUES (5003, 1003, 'Debit');
-INSERT INTO karta (nr_karty, nr_konta, rodzaj_karty) VALUES (5004, 1004, 'Credit');
+INSERT INTO karta ( nr_konta, rodzaj_karty) VALUES ( 1001, 'Debit');
+INSERT INTO karta ( nr_konta, rodzaj_karty) VALUES ( 1002, 'Credit');
+INSERT INTO karta ( nr_konta, rodzaj_karty) VALUES ( 1003, 'Debit');
+INSERT INTO karta ( nr_konta, rodzaj_karty) VALUES ( 1004, 'Credit');
 
-INSERT INTO typ_kredytu (typ_kredytu_id, oprocentowanie, maksymalna_kwota, pula_srodkow, aktualna_pula_srodkow, oddzial_id) VALUES (1, 2, 100000, 500000, 500000, 1);
-INSERT INTO typ_kredytu (typ_kredytu_id, oprocentowanie, maksymalna_kwota, pula_srodkow, aktualna_pula_srodkow, oddzial_id) VALUES (2, 8, 150000, 500000, 500000, 1);
-INSERT INTO typ_kredytu (typ_kredytu_id, oprocentowanie, maksymalna_kwota, pula_srodkow, aktualna_pula_srodkow, oddzial_id) VALUES (3, 2, 200000, 500000, 500000, 2);
-INSERT INTO typ_kredytu (typ_kredytu_id, oprocentowanie, maksymalna_kwota, pula_srodkow, aktualna_pula_srodkow, oddzial_id) VALUES (4, 8, 250000, 750000, 750000, 2);
+INSERT INTO typ_kredytu ( oprocentowanie, maksymalna_kwota, pula_srodkow, aktualna_pula_srodkow, oddzial_id) VALUES (2, 100000, 500000, 500000, 1);
+INSERT INTO typ_kredytu ( oprocentowanie, maksymalna_kwota, pula_srodkow, aktualna_pula_srodkow, oddzial_id) VALUES (8, 150000, 500000, 500000, 1);
+INSERT INTO typ_kredytu ( oprocentowanie, maksymalna_kwota, pula_srodkow, aktualna_pula_srodkow, oddzial_id) VALUES ( 2, 200000, 500000, 500000, 2);
+INSERT INTO typ_kredytu ( oprocentowanie, maksymalna_kwota, pula_srodkow, aktualna_pula_srodkow, oddzial_id) VALUES ( 8, 250000, 750000, 750000, 2);
 
 INSERT INTO kredyt_detale (klient_id, typ_kredytu_id, kwota, data_zaciagniecia, data_splaty) VALUES (1, 1, 5000, '2023-01-15', null);
 INSERT INTO kredyt_detale (klient_id, typ_kredytu_id, kwota, data_zaciagniecia, data_splaty) VALUES (2, 2, 7500, '2020-02-20', '2023-02-20');

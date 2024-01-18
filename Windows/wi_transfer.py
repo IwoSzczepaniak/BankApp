@@ -1,6 +1,6 @@
 from Windows.common_tk_classes import *
 
-class WindowInputTransaction(Window):
+class WindowInputTransfer(Window):
     def __init__(self, title) -> None:
         Window.__init__(self, title)
         

@@ -1,88 +1,88 @@
--- Update Saldo Trigger
-CREATE OR REPLACE FUNCTION update_saldo_function()
-RETURNS TRIGGER AS $$
+
+--update saldo PRZELEW (sprawdz czy masz tyle na koncie)
+CREATE OR REPLACE FUNCTION update_saldo()
+RETURNS trigger AS $$
+DECLARE
+    r_karty VARCHAR(20);
 BEGIN
-    -- Subtract amount from the account of the sender
-    UPDATE konto
-    SET saldo = saldo - NEW.kwota
-    WHERE nr_konta = NEW.nr_konta_nadawcy;
+    select rodzaj_karty into r_karty
+    from karta
+    where nr_konta = (SELECT nr_konta_nadawcy FROM przelew WHERE przelew_id = NEW.przelew_id);
 
-    -- Add amount to the account of the receiver
-    UPDATE konto
-    SET saldo = saldo + NEW.kwota
-    WHERE nr_konta = NEW.nr_konta_odbiorcy;
-
-    IF NEW.kwota < 0 THEN
-        RAISE EXCEPTION 'Błędna kwota przelewu';
-    END IF;
-
-    IF (SELECT saldo FROM konto WHERE nr_konta = NEW.nr_konta_nadawcy) + NEW.kwota <= 0 THEN
+    if(r_karty = 'Debit' AND (SELECT saldo FROM konto WHERE nr_konta = (SELECT nr_konta_nadawcy FROM przelew WHERE przelew_id = NEW.przelew_id)) < (SELECT kwota FROM przelew WHERE przelew_id =  NEW.przelew_id)) then
         RAISE EXCEPTION 'za malo srodkow na koncie aby zrobic przelew';
-    END IF;
-
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-DO $$ 
-BEGIN
-    IF NOT EXISTS (
-        SELECT 1 
-        FROM pg_trigger 
-        WHERE tgname = 'update_saldo_trigger' 
-        AND tgrelid = 'przelew'::regclass
-    ) THEN
-        CREATE TRIGGER update_saldo_trigger
-        AFTER INSERT ON przelew
-        FOR EACH ROW
-        EXECUTE FUNCTION update_saldo_function();
-    END IF;
-END $$;
-
--- Update Saldo ATM Trigger
-CREATE OR REPLACE FUNCTION update_saldo_atm_function()
-RETURNS TRIGGER AS $$
-BEGIN
+    ELSE
     UPDATE konto
-    SET saldo = saldo + NEW.wplata_wyplata
-    WHERE nr_konta = (SELECT nr_konta FROM karta WHERE nr_karty = NEW.nr_karty);
+    SET saldo = saldo - (SELECT kwota FROM przelew WHERE przelew_id =  NEW.przelew_id)
+    WHERE nr_konta = (SELECT nr_konta_nadawcy FROM przelew WHERE przelew_id = NEW.przelew_id);
 
-    IF (SELECT k.saldo
-        FROM konto k
-        JOIN karta ka ON k.nr_konta = ka.nr_konta
-        WHERE ka.nr_karty = NEW.nr_karty) < 0 THEN
-        RAISE EXCEPTION 'za malo srodkow na koncie aby wyplacic oczekiwana kwote';
+    UPDATE konto
+    SET saldo = saldo + (SELECT kwota FROM przelew WHERE przelew_id =  NEW.przelew_id)
+    WHERE nr_konta = (SELECT nr_konta_odbiorcy FROM przelew WHERE przelew_id = NEW.przelew_id);
+    
     END IF;
-
-    RETURN NEW;
+    return NEW;
 END;
 $$ LANGUAGE plpgsql;
 
-DO $$ 
-BEGIN
-    IF NOT EXISTS (
-        SELECT 1 
-        FROM pg_trigger 
-        WHERE tgname = 'update_saldo_atm_trigger' 
-        AND tgrelid = 'transakcja'::regclass
-    ) THEN
-        CREATE TRIGGER update_saldo_atm_trigger
-        AFTER INSERT ON transakcja
-        FOR EACH ROW
-        EXECUTE FUNCTION update_saldo_atm_function();
-    END IF;
-END $$;
 
--- Check Property Trigger
-CREATE OR REPLACE FUNCTION check_property_function()
-RETURNS TRIGGER AS $$
+create TRIGGER update_saldo_trigger
+AFTER INSERT ON przelew
+FOR EACH ROW
+EXECUTE FUNCTION update_saldo();
+
+
+
+--update saldo ATM (sprawdz czy masz tyle na koncie)
+CREATE OR REPLACE FUNCTION update_saldo_atm()
+RETURNS trigger AS $$
+DECLARE
+    saldo_u int;
+    r_karty VARCHAR(20);
 BEGIN
-    IF (SELECT oprocentowanie
-        FROM typ_kredytu
-        WHERE typ_kredytu_id = NEW.typ_kredytu_id) = 2 
-        AND (SELECT mieszkanie
-            FROM klient
-            WHERE klient_id = NEW.klient_id) THEN
+    select k.saldo into saldo_u
+    from konto k
+    join karta ka on k.nr_konta = ka.nr_konta
+    where ka.nr_karty = NEW.nr_karty;
+
+    select rodzaj_karty into r_karty
+    from karta
+    where nr_konta = (SELECT k.nr_konta FROM konto k JOIN karta kr on k.nr_konta=kr.nr_konta JOIN transakcja t ON kr.nr_karty=t.nr_karty  WHERE transakcja_id = NEW.transakcja_id);
+
+    if(r_karty = 'Debit' AND (SELECT wplata_wyplata FROM transakcja WHERE transakcja_id =  NEW.transakcja_id) + saldo_u < 0) then
+        RAISE EXCEPTION 'za malo srodkow na koncie aby wyplacic oczekiwana kwote';
+    ELSE
+    UPDATE konto
+    SET saldo = saldo + (SELECT wplata_wyplata FROM transakcja WHERE transakcja_id =  NEW.transakcja_id)
+    WHERE nr_konta = (SELECT nr_konta FROM karta WHERE nr_karty = NEW.nr_karty);
+    END IF;
+    return NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+
+create TRIGGER update_saldo_atm_trigger
+AFTER INSERT ON transakcja
+FOR EACH ROW
+EXECUTE FUNCTION update_saldo_atm();
+
+
+
+CREATE OR REPLACE FUNCTION czy_ma_mieszkanie() 
+RETURNS TRIGGER AS $$
+DECLARE 
+    procent int;
+    miesz boolean;
+BEGIN
+    SELECT oprocentowanie INTO procent
+    FROM typ_kredytu
+    WHERE typ_kredytu_id = NEW.typ_kredytu_id;
+
+    SELECT mieszkanie INTO miesz
+    FROM klient
+    WHERE klient_id = NEW.klient_id;
+
+    IF procent = 2 AND miesz THEN
         RAISE EXCEPTION 'Nie możesz wziąć kredytu z oprocentowaniem 2, jeśli posiadasz mieszkanie';
     END IF;
 
@@ -90,52 +90,165 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-DO $$ 
-BEGIN
-    IF NOT EXISTS (
-        SELECT 1 
-        FROM pg_trigger 
-        WHERE tgname = 'check_property_trigger' 
-        AND tgrelid = 'kredyt_detale'::regclass
-    ) THEN
-        CREATE TRIGGER check_property_trigger
-        BEFORE INSERT ON kredyt_detale
-        FOR EACH ROW
-        EXECUTE FUNCTION check_property_function();
-    END IF;
-END $$;
 
--- Check Credit Trigger
-CREATE OR REPLACE FUNCTION check_credit_function()
+CREATE TRIGGER czy_ma_mieszkanie_trigger
+BEFORE INSERT ON kredyt_detale
+FOR EACH ROW
+EXECUTE FUNCTION czy_ma_mieszkanie();
+
+
+
+--sprawdz czy klient nie ma juz kredytu
+CREATE OR REPLACE FUNCTION czy_ma_juz_kredyt()
 RETURNS TRIGGER AS $$
+DECLARE 
+    count int;
 BEGIN
-    IF (SELECT COUNT(*)
-        FROM kredyt_detale
-        WHERE klient_id = NEW.klient_id) > 0 THEN
-        RAISE EXCEPTION 'Klient posiada już kredyt - nie moze dostac kolejnego';
-    END IF;
+    SELECT COUNT(*) INTO count
+    FROM kredyt_detale
+    WHERE klient_id = NEW.klient_id;
 
-    IF NOT EXISTS (SELECT 1
-        FROM klient
-        WHERE klient_id = NEW.klient_id) THEN
-        RAISE EXCEPTION 'Nie ma klienta o takim id';
+    IF count > 0 THEN
+        RAISE EXCEPTION 'Klient posiada już kredyt - nie moze dostac kolejnego';
     END IF;
 
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
-DO $$ 
+
+CREATE TRIGGER czy_ma_juz_kredyt_trigger
+BEFORE INSERT ON kredyt_detale
+FOR EACH ROW
+EXECUTE FUNCTION czy_ma_juz_kredyt();
+
+
+
+--sprawdz czy klient nie bierze kredytu o wysokosci wiekszej niz jego maksymalna kwota
+CREATE OR REPLACE FUNCTION sprawdz_wysokosc_kredytu()
+RETURNS TRIGGER AS $$
+DECLARE 
+    max_amount int;
 BEGIN
-    IF NOT EXISTS (
-        SELECT 1 
-        FROM pg_trigger 
-        WHERE tgname = 'check_credit_trigger' 
-        AND tgrelid = 'kredyt_detale'::regclass
-    ) THEN
-        CREATE TRIGGER check_credit_trigger
-        BEFORE INSERT ON kredyt_detale
-        FOR EACH ROW
-        EXECUTE FUNCTION check_credit_function();
+    
+        SELECT maksymalna_kwota INTO max_amount
+        FROM typ_kredytu
+        WHERE typ_kredytu_id = NEW.typ_kredytu_id;
+    
+        IF NEW.kwota > max_amount THEN
+            RAISE EXCEPTION 'Klient nie może wziąć tego kredytu w takiej wysokosci';
+        END IF;
+    
+        RETURN NEW;
+    END;
+$$ LANGUAGE plpgsql;
+
+
+CREATE TRIGGER sprawdz_wysokosc_kredytu_trigger
+BEFORE INSERT ON kredyt_detale
+FOR EACH ROW
+EXECUTE FUNCTION sprawdz_wysokosc_kredytu();
+
+
+
+--update pula srodkow
+CREATE OR REPLACE FUNCTION update_pula_srodkow()
+RETURNS trigger AS $$
+BEGIN
+    UPDATE typ_kredytu
+    SET aktualna_pula_srodkow = aktualna_pula_srodkow - NEW.kwota
+    WHERE oddzial_id = (Select oddzial_id from typ_kredytu where typ_kredytu_id=NEW.typ_kredytu_id) AND typ_kredytu_id =  NEW.typ_kredytu_id;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+create TRIGGER update_pula_srodkow_trigger
+AFTER INSERT ON kredyt_detale
+FOR EACH ROW
+EXECUTE FUNCTION update_pula_srodkow();
+
+
+
+--sprawdz czy pula srodkow nie jest wyczerpana
+CREATE OR REPLACE FUNCTION czy_pula_wyczerpana() 
+RETURNS TRIGGER AS $$
+DECLARE
+    dostepne_srodki int;
+BEGIN
+    SELECT aktualna_pula_srodkow INTO dostepne_srodki
+    FROM typ_kredytu
+    WHERE typ_kredytu_id = NEW.typ_kredytu_id;
+    IF dostepne_srodki < NEW.kwota THEN
+        RAISE EXCEPTION 'pula srodkow dla tego typu kredytu sie wyczerpala, bądz jest na wyczerpaniu';
     END IF;
-END $$;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER czy_pula_wyczerpana_trigger
+BEFORE INSERT ON kredyt_detale
+FOR EACH ROW
+EXECUTE FUNCTION czy_pula_wyczerpana();
+
+
+
+
+--sprawdz czy klient o takim peselu juz istnieje
+CREATE OR REPLACE FUNCTION czy_klient_w_bazie() 
+RETURNS TRIGGER AS $$
+BEGIN
+    if(SELECT pesel
+    FROM klient
+    WHERE pesel = NEW.pesel) IS NOT NULL
+    THEN
+        RAISE EXCEPTION 'Klient o takim numerze PESEL już istnieje w bazie';
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER czy_klient_w_bazie_trigger
+BEFORE INSERT ON klient
+FOR EACH ROW
+EXECUTE FUNCTION czy_klient_w_bazie();
+
+
+
+--czy poprawny nr pesel
+CREATE OR REPLACE FUNCTION czy_pesel_dziewieciocyfrowy()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF (LENGTH(NEW.pesel) <> 9) THEN
+        RAISE EXCEPTION 'Pesel musi miec 9 cyfr';
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER czy_pesel_dziewieciocyfrowy_trigger
+BEFORE INSERT ON klient
+FOR EACH ROW EXECUTE PROCEDURE czy_pesel_dziewieciocyfrowy();
+
+
+--kazdy oddzial moze miec w ofercie tylko jeden kredyt o danym oprocentowaniu
+CREATE OR REPLACE FUNCTION czy_oddzial_ma_juz_taki_procent()
+RETURNS TRIGGER AS $$
+DECLARE
+    procent numeric;
+BEGIN
+    SELECT oprocentowanie INTO procent
+    FROM typ_kredytu tk
+    WHERE tk.oddzial_id = NEW.oddzial_id;
+
+    IF procent = NEW.oprocentowanie THEN
+        RAISE EXCEPTION 'w tym oddziale już istnieje kredyt o takim oprocentowaniu';
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER czy_oddzial_ma_juz_taki_procent_trigger
+BEFORE INSERT ON typ_kredytu
+FOR EACH ROW EXECUTE PROCEDURE czy_oddzial_ma_juz_taki_procent();
