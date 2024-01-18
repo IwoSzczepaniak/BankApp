@@ -216,19 +216,19 @@ EXECUTE FUNCTION czy_klient_w_bazie();
 
 
 --czy poprawny nr pesel
-CREATE OR REPLACE FUNCTION czy_pesel_dziewieciocyfrowy()
+CREATE OR REPLACE FUNCTION czy_pesel_jedenastocyfrowy()
 RETURNS TRIGGER AS $$
 BEGIN
-    IF (LENGTH(NEW.pesel) <> 9) THEN
-        RAISE EXCEPTION 'Pesel musi miec 9 cyfr';
+    IF (LENGTH(NEW.pesel) <> 11) THEN
+        RAISE EXCEPTION 'Pesel musi miec 11 cyfr';
     END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER czy_pesel_dziewieciocyfrowy_trigger
+CREATE TRIGGER czy_pesel_jedenastocyfrowy_trigger
 BEFORE INSERT ON klient
-FOR EACH ROW EXECUTE PROCEDURE czy_pesel_dziewieciocyfrowy();
+FOR EACH ROW EXECUTE PROCEDURE czy_pesel_jedenastocyfrowy();
 
 
 --kazdy oddzial moze miec w ofercie tylko jeden kredyt o danym oprocentowaniu

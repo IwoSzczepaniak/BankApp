@@ -12,7 +12,9 @@ class WindowInputATM(Window):
             if len(branch_id) > 0: 
                 text = f"INSERT INTO bankomat (oddzial_id) VALUES ({branch_id[1:-2]})"
                 error = execute_sql_query(text)
-                # TODO error handling
+                if error:
+                    error_window = WindowError("Błąd", error)
+                    error_window.vis()
             sleep(0.01)
             update_atm_preview()
 

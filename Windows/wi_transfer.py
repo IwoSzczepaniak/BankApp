@@ -14,7 +14,9 @@ class WindowInputTransfer(Window):
             if len(sender_id) > 0 and len(receiver_id) and len(amount) > 0:
                 text = f"INSERT INTO przelew (nr_konta_nadawcy, nr_konta_odbiorcy, kwota) VALUES ({sender_id[1:-2]}, {receiver_id[1:-2]}, {amount})"
                 error = execute_sql_query(text)
-                # TODO error handling
+                if error:
+                    error_window = WindowError("Błąd", error)
+                    error_window.vis()
             sleep(0.01)
 
         # data

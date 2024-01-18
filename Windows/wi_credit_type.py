@@ -26,7 +26,9 @@ class WindowInputCreditType(Window):
             if len(procent) > 0 and len(max_amount) > 0 and len(total_pool) > 0 and len(current_pool)>0 and len(branch)>0:
                 text = f"INSERT INTO typ_kredytu (oprocentowanie, maksymalna_kwota, pula_srodkow, aktualna_pula_srodkow, oddzial_id) VALUES ({procent}, {max_amount}, {total_pool}, {current_pool}, {branch[1:-2]});"
                 error = execute_sql_query(text)
-                # TODO error handling
+                if error:
+                    error_window = WindowError("Błąd", error)
+                    error_window.vis()
 
 
             sleep(0.01)

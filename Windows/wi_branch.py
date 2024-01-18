@@ -24,7 +24,9 @@ class WindowInputBranch(Window):
             if len(address) > 0:
                 text = f"INSERT INTO oddzial_banku (adres) VALUES ('{address}')"
                 error = execute_sql_query(text)
-                # TODO error handling
+                if error:
+                    error_window = WindowError("Błąd", error)
+                    error_window.vis()
             sleep(0.01)
             update_branch_preview()
 

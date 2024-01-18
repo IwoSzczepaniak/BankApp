@@ -16,7 +16,9 @@ class WindowInputCredit(Window):
             if len(client_id) > 0 and len(credit_type) > 0 and len(amount) > 0 and len(start_date)==10 and len(end_date)==10:
                 text = f"INSERT INTO kredyt_detale (klient_id, typ_kredytu_id, kwota, data_zaciagniecia, data_splaty) VALUES ({client_id[1:-2]}, {credit_type[1:-2]}, {amount}, '{start_date}', '{end_date}')"
                 error = execute_sql_query(text)
-                # TODO error handling
+                if error:
+                    error_window = WindowError("Błąd", error)
+                    error_window.vis()
             sleep(0.01)
 
         # data

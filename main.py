@@ -4,11 +4,15 @@ import os
 db_name ="bank.db"
 
 if __name__ == "__main__":
-    # TODO clear db
+
     sql_to_python("Queries/drop_tab.sql")
-    sql_to_python("Queries/create_tables.txt")
-    sql_to_python("Queries/inserts.txt")
-    sql_to_python("Queries/trig.txt")
+    sql_to_python("Queries/create_tables.sql")
+    sql_to_python("Queries/inserts.sql")
+    sql_to_python("Queries/trig.sql")
+
+    views_dir = "Queries/views/"
+    for file in os.listdir(views_dir):
+        sql_to_python(views_dir + file)
     
     start = WindowStart("Start")
     start.vis()

@@ -26,7 +26,9 @@ class WindowInputClients(Window):
             if len(name) > 0 and len(surname) > 0 and len(pesel) > 0 and len(realestate)>0 and len(branch)>0:
                 text = f"INSERT INTO klient (imie, nazwisko, pesel, mieszkanie, najblizszy_oddzial_id) VALUES ('{name}', '{surname}', '{pesel}', {realestate}, {branch[1:-2]});"
                 error = execute_sql_query(text)
-                # TODO error handling
+                if error:
+                    error_window = WindowError("Błąd", error)
+                    error_window.vis()
 
 
             sleep(0.01)

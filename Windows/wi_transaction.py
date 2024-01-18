@@ -14,7 +14,9 @@ class WindowInputTransaction(Window):
             if len(bankomat_id) > 0 and len(card_nr) > 0 and len(amount) > 0:
                 text = f"INSERT INTO transakcja (bankomat_id,  nr_karty, wplata_wyplata) VALUES ({bankomat_id[1:-2]}, {card_nr[1:-2]}, {amount});"
                 error = execute_sql_query(text)
-                # TODO error handling
+                if error:
+                    error_window = WindowError("Błąd", error)
+                    error_window.vis()
             sleep(0.01)
         
         # data

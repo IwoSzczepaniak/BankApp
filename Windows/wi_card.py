@@ -13,7 +13,9 @@ class WindowInputCard(Window):
             if len(account_id) > 0 and len(card_type) > 0:
                 text = f"INSERT INTO karta (nr_konta, rodzaj_karty) VALUES ({account_id[1:-2]}, '{card_type}')"
                 error = execute_sql_query(text)
-                # TODO error handling
+                if error:
+                    error_window = WindowError("Błąd", error)
+                    error_window.vis()
             sleep(0.01)
 
         # data

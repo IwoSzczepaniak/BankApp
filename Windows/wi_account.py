@@ -13,7 +13,9 @@ class WindowInputAccount(Window):
             if len(client_id) > 0 and len(saldo) > 0:
                 text = f'INSERT INTO konto (klient_id, saldo) VALUES ({client_id[1:-2]}, {saldo})'
                 error = execute_sql_query(text)
-                # TODO error handling
+                if error:
+                    error_window = WindowError("Błąd", error)
+                    error_window.vis()
             sleep(0.01)
 
         # data

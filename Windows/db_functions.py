@@ -18,7 +18,7 @@ def execute_sql_query(query_text):
         print(e)
         print(query_text)
         print()
-        return query_text
+        return e
 
 def sql_to_python(filename):
     with open(filename, 'r') as file:
@@ -34,19 +34,6 @@ def get_select(query_text):
         print(e)
         print(query_text)
         print()
-        result = None
+        result = e
     finally:
         return result
-
-
-# # currently not used
-# def selects_to_python(db_name:str, filename:str, separator:str = ';'):
-#         with open(filename, 'r') as file:
-#             content = file.read().split(separator)
-#         result = []
-#         for command in content:
-#             res = get_select(db_name, command)
-#             if len(res)>0: 
-#                 result.append(res)
-
-#         return result
